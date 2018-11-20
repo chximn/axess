@@ -1,6 +1,10 @@
 {
   "dependencies": {
+    "body-parser": "^1.18.3",
     "bulma": "^0.7.2",
+    "express": "^4.16.4",
+    "express-slow-down": "^1.1.1",
+    "uuid": "^3.3.2",
     "vue": "^2.1.10",
     "vue-router": "^2.2.1"
   },
@@ -55,6 +59,7 @@
     "build": "gulp",
     "serve": "gulp serve",
     "serve:dist": "gulp serve:dist",
+    "serve:api": "nodemon server.js -w server.js",
     "test": "gulp test",
     "test:auto": "gulp test:auto"
   },
