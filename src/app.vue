@@ -6,11 +6,29 @@
 
 			<div class="container-fluid">
 				<section class="users">
-					<user v-for="(user, i) in users" :user="user" :key="i"></user>
+					<user v-for="(user, i) in users" :user="user" :key="i" @click="showMessages"></user>
 				</section>
 
 				<section class="messages">
-					Messages
+					<div class="messages-list">
+						<div v-if="activeUser">
+							<div class="active-user">
+								<user :user="activeUser"></user>
+							</div>
+						</div>
+
+						<div v-if="activeMessages.length">
+							<message v-for="message, i in activeMessages" :message="message" :key="i"></message>
+						</div>
+
+						<div v-else class="no-messages">
+							There no messages at the moments
+						</div>
+					</div>
+
+					<div class='new-message'>
+						<input @keypress.enter="sendMessage" :disabled="!activeUser" class="input" v-model="newMessage" placeholder="Enter message">
+					</div>
 				</section>
 
 				<section class="notes">
@@ -25,26 +43,83 @@
 <script>
 
 	import User from './components/user.vue'
+	import Message from './components/message.vue'
+
+	const API = 'http://localhost:3333'
+	const hash = location.href.split('=')[1] || (new Date()).getTime()
 
 	export default {
 		name: 'Hello',
 		data() {
 			return {
-				users: []
+				users: [],
+				activeUser: '',
+				messages: {},
+				newMessage: ''
+			}
+		},
+
+		computed: {
+			activeMessages() {
+				return this.messages[this.activeUser.username] || []
+			}
+		},
+
+		methods: {
+			showMessages(user) {
+
+				if (!this.messages[user.username]) {
+
+					fetch(`${API}/${hash}/messages/${user.username}`)
+					.then(res => res.json())
+
+					.then(data => {
+						if (data.error) return console.log('Error', data.error)
+
+						this.messages[user.username] = data
+						this.activeUser = user;
+					})
+
+					.catch(e => console.log('Error occured while fetching messages'))
+				}
+
+				else this.activeUser = user
+			},
+
+			sendMessage() {
+				let message = {
+					from: 'me',
+					to: this.activeUser.username,
+					text: this.newMessage
+				}
+
+				fetch(`${API}/${hash}/messages`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+				.then(res => res.json)
+				.then(json => { if (json.error) console.log('Error', json.error) })
+				.catch(e => console.log(e))
+
+				this.messages[this.activeUser.username].push(message)
+
+				// caveat
+				let messages = this.messages
+				this.messages = {}
+				this.messages = messages
+
+				this.newMessage = ''
+
 			}
 		},
 
 		mounted() {
-			let hash = location.href.split('=')[1] || (new Date()).getTime()
 
 			setInterval(() => fetchUsers(hash).then(users => this.users = users), 1000) // every 1s
 		},
 
-		components: { User }
+		components: { User, Message}
 	}
 
 	function fetchUsers(hash) {
-		return fetch(`http://localhost:3333/${hash}/users`)
+		return fetch(`${API}/${hash}/users`)
 		.then(res => res.json())
 		.catch(e => console.log('Could not fetch users', e))
 	}
@@ -86,11 +161,44 @@
 		background: #efefef;
 		width: 300px;
 		border-right: 1px solid #ddd;
+		overflow-y: auto;
 	}
 
 	.messages {
-		flex-grow: 1;
+		width: calc(100% - 600px);
+		position: relative;
+	}
+
+	.messages .messages-list {
 		padding: 20px;
+		max-height: calc(100% - 50px);
+		overflow-y: auto;
+	}
+
+	.messages .new-message {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		padding: 10px;
+		background: #efefef;
+		border-top: 1px solid #ddd;
+	}
+
+	.messages .new-message .input {
+		border-radius: 15px;
+		border: 2px solid #ddd;
+		transition: border 0.3s ease-out 0s;
+		padding: 5px 10px;
+	}
+
+	.messages .new-message .input:focus {
+		box-shadow: none;
+		border: 2px solid #009688;
+	}
+
+	.messages .no-messages {
+		padding: 15px;
 	}
 
 	.notes {

@@ -1,5 +1,5 @@
 <template>
-	<div class="user">
+	<div class="user" @click="onclick">
 		<span :class="{'status-indicator': true, 'on': user.online}"></span>
 		{{ user.username }}
 	</div>
@@ -9,7 +9,13 @@
 
 	export default {
 		name: 'User',
-		props: ['user']
+		props: ['user'],
+
+		methods: {
+			onclick() {
+				this.$emit('click', this.user)
+			}
+		}
 	}
 
 </script>
@@ -19,7 +25,13 @@
 
 	.user {
 		padding: 10px 20px;
-		border-bottom: 1px solid #ddd
+		border-bottom: 1px solid #ddd;
+		cursor: pointer;
+		transition: background 0.3s ease-out 0s;
+	}
+
+	.user:hover {
+		background: #ddd;
 	}
 
 	.user .status-indicator {
