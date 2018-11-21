@@ -18,7 +18,7 @@
 						</div>
 
 						<div v-if="activeMessages.length">
-							<message v-for="message, i in activeMessages" :message="message" :key="i"></message>
+							<message v-for="message, i in activeMessages" :message="message" :_id="i" :key="i"></message>
 						</div>
 
 						<div v-else class="no-messages">
@@ -32,7 +32,9 @@
 				</section>
 
 				<section class="notes">
-					Notes
+					<label for="notes-text">Notes: </label>
+
+					<textarea class="textarea" id="notes-text" v-model="notes" rows="8"></textarea>
 				</section>
 			</div>
 
@@ -55,7 +57,8 @@
 				users: [],
 				activeUser: '',
 				messages: {},
-				newMessage: ''
+				newMessage: '',
+				notes: ''
 			}
 		},
 
@@ -93,8 +96,13 @@
 					text: this.newMessage
 				}
 
-				fetch(`${API}/${hash}/messages`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-				.then(res => res.json)
+				fetch(`${API}/${hash}/messages`, {
+					method: 'POST',
+					body: JSON.stringify(message),
+					headers: { 'Content-Type': 'application/json' }
+				})
+
+				.then(res => res.json())
 				.then(json => { if (json.error) console.log('Error', json.error) })
 				.catch(e => console.log(e))
 
@@ -111,8 +119,12 @@
 		},
 
 		mounted() {
-
 			setInterval(() => fetchUsers(hash).then(users => this.users = users), 1000) // every 1s
+
+			fetch(`${API}/${hash}/notes`)
+			.then(res => res.json())
+			.then(data => this.notes = data.notes)
+			.catch(e => console.log(e))
 		},
 
 		components: { User, Message}
@@ -206,6 +218,17 @@
 		width: 300px;
 		padding: 20px;
 		border-left: 1px solid #ddd;
+	}
+
+	.notes .textarea {
+		border: 2px solid #ddd;
+		transition: border 0.3s ease-out 0s;
+		font-size: 14px;
+	}
+
+	.notes .textarea:focus {
+		box-shadow: none;
+		border: 2px solid #009688;
 	}
 
 </style>

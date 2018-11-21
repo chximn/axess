@@ -1,15 +1,20 @@
 <template>
 	<div :class="{ msg: true, from: message.to == 'me'}">
-		<div class="bull">
-			{{ message.text }}
-		</div>
+		<div class="bull" :id="'message-text-' + _id"></div>
 	</div>
 </template>
 
 <script>
 	export default {
 		name: 'Message',
-		props: ['message']
+		props: ['message', '_id'],
+
+		mounted() {
+			let messageText = document.getElementById('message-text-' + this._id)
+			let range = document.createRange()
+			range.setStart(messageText, 0)
+			messageText.appendChild(range.createContextualFragment(`<span>${this.message.text}</span>`))
+		}
 	}
 </script>
 

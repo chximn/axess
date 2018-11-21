@@ -7,7 +7,7 @@ const dev = true
 const app = express()
 const port = 3333
 
-const flag = 'flag{-_-______----__-_-__--___-_}'
+const flag = 'My super secret passcode:\nflag{-_-______----__-_-__--___-_}'
 const passcode = 'JFtMf1T2pv2nGVc87jp9WSjSj6A3vJ70'
 const users = ['admin', 'john', 'marie', 'jack', 'howard', 'matt', 'jane', 'fred', 'nicolas', 'rasmus']
 
@@ -36,12 +36,13 @@ app.use(bodyParser.json())
 
 // Use appropriate headers
 app.use((req, res, next) => {
-	res.header('Access-Control-Allow-Origin', ['*']);
+	res.header('Access-Control-Allow-Origin', ['*'])
+	res.header('Access-Control-Allow-Headers', ['*'])
 	res.header('Content-Type', 'application/json')
 	next()
 })
 
-// routes
+// <routes></routes>
 app.get('/:passcode/users', (req, res) => {
 	let usersWithStatus = users.map(user => Object({ username: user, online: user === 'admin' && adminOnline}))
 
@@ -56,7 +57,11 @@ app.get('/:passcode/users', (req, res) => {
 app.get('/:passcode/messages/:user', (req, res) => {
 	// if admin
 	if (req.params.passcode == passcode)
-		return res.send(messages.map(message => Object({ from: message.to, to: message.from, text: message.text })).concat(notReadMessages.splice(0)))
+		return res.send(messages.map(message => {
+			return { from: message.to, to: message.from, text: message.text }
+		})
+
+		.concat(notReadMessages.splice(0)))
 
 	// else (user)
 	return res.send(req.params.user === 'admin' ? messages : [])
@@ -64,16 +69,17 @@ app.get('/:passcode/messages/:user', (req, res) => {
 
 app.post('/:passcode/messages', (req, res) => {
 	// if admin
-	if (req.params.passcode == passcode)
+	if (req.params.passcode === passcode)
 		return res.send({})
 
-	if (typeof req.body.message !== 'string') return res.send({ error: 'INVALID_INPUT' })
+	if (typeof req.body.text !== 'string') return res.send({ error: 'INVALID_INPUT' })
 	if (typeof req.body.to !== 'string') return res.send({ error: 'INVALID_INPUT' })
 
 	// must be for admin
 	if (req.body.to === 'admin') {
-		notReadMessages.push(req.body.message)
+		notReadMessages.push({ from: 'admin', to: 'me', text: req.body.text })
 	}
+
 
 	return res.send({})
 })
