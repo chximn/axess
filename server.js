@@ -2,6 +2,8 @@ const bodyParser = require('body-parser')
 const express = require('express')
 const slowDown = require('express-slow-down')
 
+const dev = true
+
 const app = express()
 const port = 3333
 
@@ -23,7 +25,7 @@ const messages = [
 let notReadMessages = []
 let adminOnline = true
 
-app.use(slowDown({
+if (!dev) app.use(slowDown({
 	windowMs: 5 * 60 * 1000, // 5 minutes
 	delayAfter: 100,         // delay after 100 requests
 	delayMs: 100             // incremental delay of 100ms
@@ -57,7 +59,7 @@ app.get('/:passcode/messages/:user', (req, res) => {
 		return res.send(messages.map(message => Object({ from: message.to, to: message.from, text: message.text })).concat(notReadMessages.splice(0)))
 
 	// else (user)
-	return res.send(req.params.user === 'admin' ? messages : [req.params.passcode])
+	return res.send(req.params.user === 'admin' ? messages : [])
 })
 
 app.post('/:passcode/messages', (req, res) => {
@@ -82,6 +84,3 @@ app.get('/', (req, res) => res.send({ hello: 'world' }))
 
 // start listening...
 app.listen(port, () => console.log(`server running on port ${port}!`))
-
-// make admin log in and out every minute
-setInterval(() => adminOnline = !adminOnline, 60 * 1000)
