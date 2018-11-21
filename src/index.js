@@ -1,7 +1,8 @@
 import Vue from 'vue';
-import Hello from './app/Hello.vue';
+import App from './app.vue';
+import '../node_modules/bulma/css/bulma.css';
 
 export default new Vue({
   el: '#root',
-  render: h => h(Hello)
+  render: h => h(App)
 });
