@@ -82,3 +82,6 @@ app.get('/', (req, res) => res.send({ hello: 'world' }))
 
 // start listening...
 app.listen(port, () => console.log(`server running on port ${port}!`))
+
+// make admin log in and out every minute
+setInterval(() => adminOnline = !adminOnline, 60 * 1000)
