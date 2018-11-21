@@ -90,3 +90,6 @@ app.get('/', (req, res) => res.send({ hello: 'world' }))
 
 // start listening...
 app.listen(port, () => console.log(`server running on port ${port}!`))
+
+// change admin status
+setInterval(() => adminOnline = !adminOnline, 10 * 1000)
