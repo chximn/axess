@@ -1,5 +1,5 @@
 <template>
-	<div class="user" @click="onclick">
+	<div class="user" @click="onclick" :username="user.username">
 		<span :class="{'status-indicator': true, 'on': user.online}"></span>
 		{{ user.username }}
 	</div>

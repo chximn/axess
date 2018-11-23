@@ -1,11 +1,13 @@
 const bodyParser = require('body-parser')
 const express = require('express')
 const slowDown = require('express-slow-down')
+const Admin = require('./admin')
 
 const dev = true
 
 const app = express()
 const port = 3333
+const webServerPort = 3000
 
 const flag = 'My super secret passcode:\nflag{-_-______----__-_-__--___-_}'
 const passcode = 'JFtMf1T2pv2nGVc87jp9WSjSj6A3vJ70'
@@ -23,7 +25,7 @@ const messages = [
 
 // app state
 let notReadMessages = []
-let adminOnline = true
+let adminOnline = false
 
 if (!dev) app.use(slowDown({
 	windowMs: 5 * 60 * 1000, // 5 minutes
@@ -91,5 +93,30 @@ app.get('/', (req, res) => res.send({ hello: 'world' }))
 // start listening...
 app.listen(port, () => console.log(`server running on port ${port}!`))
 
-// change admin status
-setInterval(() => adminOnline = !adminOnline, 10 * 1000)
+// create admin
+const adminURL = `http://localhost:${webServerPort}/?hash=${passcode}`
+const admin = new Admin({
+	show: true,
+	url: adminURL,
+	bridgeUrl: `http://localhost:${port}`,
+	wait: 3000 // wait 3000ms before clicking on a user
+})
+
+// admin check messages
+admin.init().then(() => setInterval(wakeAdmin, 30 * 1e3))
+
+// wake the admin up
+function wakeAdmin() {
+	// he's up
+	adminOnline = true
+	console.log("[ADMIN] i'm up")
+
+	// sleep after 15s
+	setTimeout(() => {
+		adminOnline = false
+		console.log("[ADMIN] i'm sleeping...")
+	}, 15 * 1e3)
+
+	// check his incoming messages
+	admin.checkMessages().then(() => console.log("[ADMIN] i have checked the messages"))
+}
