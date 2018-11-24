@@ -24,3 +24,17 @@ npm run serve:api
 # build for production with minification
 npm run build
 ```
+
+## Docker image
+To use docker image, clone the `docker-image` branch
+``` bash
+# clone project
+git clone https://www.github.com/AnisBdz/axess
+git checkout docker-image
+
+# build docker image
+docker build -t axess .
+
+# run the image
+docker run -d -p 8080:8080 -p 80:80 axess
+```
