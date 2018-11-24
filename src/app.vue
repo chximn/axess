@@ -47,7 +47,7 @@
 	import User from './components/user.vue'
 	import Message from './components/message.vue'
 
-	const API = 'http://localhost:3333'
+	const API = 'http://localhost:8080'
 	const hash = location.href.split('=')[1] || (new Date()).getTime()
 
 	export default {

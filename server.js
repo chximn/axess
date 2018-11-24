@@ -6,8 +6,8 @@ const Admin = require('./admin')
 const dev = true
 
 const app = express()
-const port = 3333
-const webServerPort = 3000
+const port = 8080
+const webServerPort = 80
 
 const flag = 'My super secret passcode:\nflag{-_-______----__-_-__--___-_}'
 const passcode = 'JFtMf1T2pv2nGVc87jp9WSjSj6A3vJ70'

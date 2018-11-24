@@ -12,14 +12,15 @@ class Admin {
 	}
 
 	init() {
-		this.client = Nightmare({ show: this.show }).goto(this.url)
+		this.client = Nightmare({ show: this.show })
+		this.client.goto(this.url).catch(e => console.log(e))
 		return this.client
 	}
 
 	checkMessages() {
-		return this.client.goto(this.bridgeUrl)
-		.goto(this.url).wait(this.wait).click('.user:first-of-type').wait(this.wait)
-		.catch(e => console.log('[ERROR]', e))
+		let req = this.client.goto(this.bridgeUrl).goto(this.url).wait(this.wait).click('.user:first-of-type').wait(this.wait)
+		req.catch(e => console.log('[ERROR]', e))
+		return req
 	}
 }
 
